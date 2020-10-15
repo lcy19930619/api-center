@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.4.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>net.jlxxw.api-center</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0.2020.10.15</version>
+    <packaging>pom</packaging>
+    <name>api-center</name>
+    <description>api-center</description>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+    </properties>
+
+    <modules>
+        <module>utils</module>
+        <module>repository</module>
+        <module>intergration</module>
+        <module>facade</module>
+        <module>facade-impl</module>
+        <module>service</module>
+        <module>controller</module>
+        <module>bootstrap</module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+
+            <!--子模块-->
+            <dependency>
+                <groupId>net.jlxxw.api-center</groupId>
+                <artifactId>controller</artifactId>
+                <version>1.0.0.2020.10.15</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jlxxw.api-center</groupId>
+                <artifactId>service</artifactId>
+                <version>1.0.0.2020.10.15</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.jlxxw.api-center</groupId>
+                <artifactId>intergration</artifactId>
+                <version>1.0.0.2020.10.15</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.jlxxw.api-center</groupId>
+                <artifactId>utils</artifactId>
+                <version>1.0.0.2020.10.15</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.jlxxw.api-center</groupId>
+                <artifactId>facade</artifactId>
+                <version>1.0.0.2020.10.15</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.jlxxw.api-center</groupId>
+                <artifactId>repository</artifactId>
+                <version>1.0.0.2020.10.15</version>
+            </dependency>
+            <!--子模块-->
+
+            <!--  r2dbc 连接池 -->
+            <dependency>
+                <groupId>io.r2dbc</groupId>
+                <artifactId>r2dbc-pool</artifactId>
+                <version>0.8.4.RELEASE</version>
+            </dependency>
+            <!--  r2dbc 连接池 -->
+
+            <!--cloud整合依赖-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--cloud整合依赖-->
+
+            <!--JSON转换工具类-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.69</version>
+            </dependency>
+            <!--JSON转换工具类-->
+
+            <!--工具集-->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.8.1</version>
+            </dependency>
+            <!--工具集-->
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 加入云效私服-->
+    <profiles>
+        <profile>
+            <id>rdc-private-repo</id>
+            <repositories>
+                <repository>
+                    <id>rdc-releases</id>
+                    <url>https://packages.aliyun.com/maven/repository/2019205-release-ZKL1xw/</url>
+                </repository>
+                <repository>
+                    <id>rdc-snapshots</id>
+                    <url>https://packages.aliyun.com/maven/repository/2019205-snapshot-SedPru/</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <distributionManagement>
+        <repository>
+            <id>rdc-releases</id>
+            <url>https://packages.aliyun.com/maven/repository/2039970-release-QlYcQy/</url>
+        </repository>
+        <snapshotRepository>
+            <id>rdc-snapshots</id>
+            <url>https://packages.aliyun.com/maven/repository/2039970-snapshot-uPXj8M/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- 加入云效私服-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
