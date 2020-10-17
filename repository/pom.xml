@@ -23,6 +23,10 @@
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-pool</artifactId>
         </dependency>
+        <dependency>
+            <groupId>dev.miku</groupId>
+            <artifactId>r2dbc-mysql</artifactId>
+        </dependency>
         <!--  r2dbc 连接池 -->
         <!--数据源-->
         <dependency>
@@ -30,6 +34,7 @@
             <artifactId>spring-boot-starter-data-r2dbc</artifactId>
         </dependency>
         <!--数据源-->
+
     </dependencies>
 
 </project>

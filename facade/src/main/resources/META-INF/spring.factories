@@ -1,0 +1,3 @@
+# 自动装配
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+net.jlxxw.apicenter.facade.config.ApiCenterAutoConfig

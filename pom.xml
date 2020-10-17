@@ -97,6 +97,12 @@
                 <artifactId>r2dbc-pool</artifactId>
                 <version>0.8.4.RELEASE</version>
             </dependency>
+
+            <dependency>
+                <groupId>dev.miku</groupId>
+                <artifactId>r2dbc-mysql</artifactId>
+                <version>0.8.2.RELEASE</version>
+            </dependency>
             <!--  r2dbc 连接池 -->
 
             <!--cloud整合依赖-->
