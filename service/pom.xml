@@ -27,6 +27,10 @@
             <groupId>net.jlxxw.api-center</groupId>
             <artifactId>facade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.jlxxw.api-center</groupId>
+            <artifactId>facade-impl</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

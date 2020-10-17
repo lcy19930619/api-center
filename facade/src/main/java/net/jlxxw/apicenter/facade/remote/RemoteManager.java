@@ -26,18 +26,28 @@ public class RemoteManager extends AbstractRemoteManager {
      * 向注册中心注册
      *
      * @param apiCenterClientProperties
+     *
      * @throws ApiCenterException
      */
     @Override
     protected void registryCenter(ApiCenterClientProperties apiCenterClientProperties) throws ApiCenterException {
-        if (StringUtils.isBlank(applicationName)) {
-            throw new IllegalArgumentException("application name is not null");
+        if (StringUtils.isBlank( applicationName )) {
+            throw new IllegalArgumentException( "application name is not null" );
         }
-        String path = ApiCenterConstant.PARENT_NODE + "/" + applicationName + "/" + IPAddressUtils.getIpAddress() + ":" +
-                apiCenterClientProperties.getPort();
-        if (!zookeeperUtils.existsNode(path)) {
+        if (!zookeeperUtils.existsNode(ApiCenterConstant.PARENT_NODE)) {
+            // 如果api center主节点不存在，创建节点
+            zookeeperUtils.createOpenACLPersistentNode(ApiCenterConstant.PARENT_NODE, "".getBytes());
+        }
+
+        String parentPath = ApiCenterConstant.PARENT_NODE + "/" + applicationName ;
+        if (!zookeeperUtils.existsNode( parentPath )) {
             // 如果节点不存在，创建节点
-            zookeeperUtils.createOpenACLEphemeralNode(path, "".getBytes());
+            zookeeperUtils.createOpenACLPersistentNode( parentPath, "".getBytes() );
+        }
+        parentPath = parentPath + "/" + IPAddressUtils.getIpAddress() + ":" + apiCenterClientProperties.getPort();
+        if (!zookeeperUtils.existsNode( parentPath )) {
+            // 如果节点不存在，创建节点
+            zookeeperUtils.createOpenACLEphemeralNode( parentPath, "".getBytes() );
         }
 
     }
