@@ -11,12 +11,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRemoteManager {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRemoteManager.class);
-    /**
-     * 创建远程执行代理对象
-     * @param apiCenterClientProperties 自定义的配置文件
-     * @throws ApiCenterException 创建失败则抛出相关异常
-     */
-    protected abstract void createExecuteProxy(ApiCenterClientProperties apiCenterClientProperties) throws ApiCenterException;
 
     /**
      * 向注册中心注册
@@ -46,8 +40,5 @@ public abstract class AbstractRemoteManager {
         registryCenter(apiCenterClientProperties);
         logger.info("join registryCenter done");
 
-        logger.info("create execute proxy");
-        createExecuteProxy(apiCenterClientProperties);
-        logger.info("create execute proxy done");
     }
 }

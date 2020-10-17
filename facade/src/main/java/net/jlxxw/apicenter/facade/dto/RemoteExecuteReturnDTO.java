@@ -8,8 +8,14 @@ import java.io.Serializable;
  */
 public class RemoteExecuteReturnDTO implements Serializable {
 
+    /**
+     * 是否成功
+     */
     private Boolean success;
 
+    /**
+     * 错误信息
+     */
     private String message;
     /**
      * 方法注解上的service code

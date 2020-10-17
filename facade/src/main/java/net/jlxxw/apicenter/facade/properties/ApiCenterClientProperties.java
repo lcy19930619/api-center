@@ -16,6 +16,34 @@ public class ApiCenterClientProperties {
      */
     private int port = 31697;
 
+    /**
+     * zookeeper host地址，多个地址用逗号做分割
+     * 例如 ：127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183
+     */
+    private String zookeeperHosts = "localhost:2181";
+
+    /**
+     * zookeeper 超时时间
+     */
+    private int timeout = 5000;
+
+
+    public String getZookeeperHosts() {
+        return zookeeperHosts;
+    }
+
+    public void setZookeeperHosts(String zookeeperHosts) {
+        this.zookeeperHosts = zookeeperHosts;
+    }
+
+    public  int getTimeout() {
+        return timeout;
+    }
+
+    public  void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     public int getPort() {
         return port;
     }

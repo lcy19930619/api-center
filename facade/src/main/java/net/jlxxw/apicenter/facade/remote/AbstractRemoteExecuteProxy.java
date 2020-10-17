@@ -32,8 +32,8 @@ public abstract class AbstractRemoteExecuteProxy {
 
     /**
      * 执行远程方法
-     * @param remoteExecuteParam
+     * @param json
      * @return
      */
-    public abstract RemoteExecuteReturnDTO execute(RemoteExecuteParam remoteExecuteParam);
+    public abstract RemoteExecuteReturnDTO execute(String json);
 }
