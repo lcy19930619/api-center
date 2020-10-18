@@ -40,9 +40,6 @@ public class ApiCenterRunner implements ApplicationContextAware, ApplicationRunn
      */
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // 初始化远程执行相关全部内容
-        remoteManager.init(apiCenterClientProperties);
-
         // 扫描全部bean
         logger.info("begin scan method");
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
@@ -51,6 +48,11 @@ public class ApiCenterRunner implements ApplicationContextAware, ApplicationRunn
             methodScanner.scanMethod(bean);
         }
         logger.info("method registry done");
+
+        // 初始化远程执行相关全部内容
+        remoteManager.init(apiCenterClientProperties);
+
+
     }
 
     /**

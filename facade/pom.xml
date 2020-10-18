@@ -9,7 +9,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>facade</artifactId>
-    <version>1.0.0.2020.10.15</version>
+    <version>1.0.0.2020.10.18</version>
     <name>facade</name>
     <description>Demo project for Spring Boot</description>
 
