@@ -79,6 +79,7 @@ public class ForwardingServiceImpl implements ForwardingService {
         Random random = new Random();
         int index = random.nextInt( nodes.size() );
         String address = nodes.get( index );
+        String[] split = address.split( ":" );
 
         /*
             执行远程方法
@@ -88,6 +89,7 @@ public class ForwardingServiceImpl implements ForwardingService {
         remoteExecuteParam.setMethodParamJson( JSON.toJSONString(dto.getRequestParam()) );
         remoteExecuteParam.setMethodFlag( MethodFlagEnum.NORMAL.name() );
         try{
+            nettyClient.createClient( split[0], Integer.valueOf(  split[1]  ));
             RemoteExecuteReturnDTO result = nettyClient.send( remoteExecuteParam );
             return Mono.just( ApiCenterResult.success( result ) );
         }catch (Exception e){

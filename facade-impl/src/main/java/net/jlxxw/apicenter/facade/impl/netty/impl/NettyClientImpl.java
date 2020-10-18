@@ -61,7 +61,9 @@ public class NettyClientImpl  implements NettyClient  {
                     if(done){
                         atomicInteger.set(0);
                         done = false;
-                        return this.result;
+                        RemoteExecuteReturnDTO result = this.result;
+                        this.result = null;
+                        return result;
                     }else{
                         Thread.sleep(300);
                     }
