@@ -9,8 +9,6 @@ import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
 import net.jlxxw.apicenter.facade.remote.AbstractRemoteExecuteProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +18,14 @@ import java.nio.charset.StandardCharsets;
  *
  * @author zhanxiumei
  */
-@Component
+
 public class ServerHandler extends ChannelInboundHandlerAdapter {
-    @Autowired
+
     private AbstractRemoteExecuteProxy abstractRemoteExecuteProxy;
+
+    public ServerHandler(AbstractRemoteExecuteProxy abstractRemoteExecuteProxy) {
+        this.abstractRemoteExecuteProxy = abstractRemoteExecuteProxy;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
 
@@ -72,7 +74,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         //服务端读取数据完毕
-        logger.info("The server has finished reading the data");
+        logger.info("Read data over");
+        ctx.flush();
     }
 
     /**
@@ -84,7 +87,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         //读取数据出现异常
-        logger.error(" There was an exception reading the data");
+        logger.error("Read data error :",cause);
         ctx.close();
     }
 

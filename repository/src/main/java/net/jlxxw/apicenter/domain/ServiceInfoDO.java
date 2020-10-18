@@ -2,21 +2,18 @@ package net.jlxxw.apicenter.domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+
 
 /**
  * @author zhanxiumei
  */
 @Setter
 @Getter
-@Table("service_info")
 public class ServiceInfoDO {
 
     /**
      * 自增id
      */
-    @Id
     private Long id;
 
     /**

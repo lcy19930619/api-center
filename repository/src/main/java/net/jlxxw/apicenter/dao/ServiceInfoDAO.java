@@ -1,12 +1,19 @@
 package net.jlxxw.apicenter.dao;
 
 import net.jlxxw.apicenter.domain.ServiceInfoDO;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * @author zhanxiumei
  */
-public interface ServiceInfoDAO extends ReactiveCrudRepository<ServiceInfoDO,Long> {
+@Mapper
+public interface ServiceInfoDAO {
 
-    ServiceInfoDO findByServiceCode(String serviceCode);
+    @Select( "select " +
+            "id,service_code as serviceCode,app_name as appName,app_id as appId, permission_code as permissionCode,`desc` " +
+            "from service_info  " +
+            "where service_code = #{serviceCode}" )
+    ServiceInfoDO findByServiceCode(@Param( "serviceCode" ) String serviceCode);
 }

@@ -32,15 +32,17 @@ public abstract class AbstractRemoteManager {
 
 
     public void init(ApiCenterClientProperties apiCenterClientProperties){
-        logger.info("join registryCenter");
-        registryCenter(apiCenterClientProperties);
-        logger.info("join registryCenter done");
+        new Thread(()->{
+            logger.info("join registryCenter");
+            registryCenter(apiCenterClientProperties);
+            logger.info("join registryCenter done");
+        }).start();
 
-        logger.info("init netty");
-        initNetty(apiCenterClientProperties);
-        logger.info("init netty done");
+        new Thread(()->{
+            logger.info("init netty");
+            initNetty(apiCenterClientProperties);
+            logger.info("init netty done");
 
-
-
+        }).start();
     }
 }

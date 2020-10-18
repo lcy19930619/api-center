@@ -16,6 +16,7 @@ import net.jlxxw.apicenter.facade.impl.netty.NettyClient;
 import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author zhanxiumei
  */
+@Service
 public class NettyClientImpl  implements NettyClient  {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientImpl.class);
@@ -36,9 +38,9 @@ public class NettyClientImpl  implements NettyClient  {
 
     private RemoteExecuteReturnDTO result = null;
 
-    private volatile Boolean done;
+    private volatile Boolean done = false;
 
-    private AtomicInteger atomicInteger = new AtomicInteger();
+    private AtomicInteger atomicInteger = new AtomicInteger(0);
 
     private static final int RETRY_MAX = 5;
     /**
@@ -56,7 +58,7 @@ public class NettyClientImpl  implements NettyClient  {
             channel.writeAndFlush(Unpooled.copiedBuffer(JSON.toJSONString(param).getBytes(StandardCharsets.UTF_8)));
 
             while(true){
-                if(atomicInteger.get()<=RETRY_MAX){
+                if(atomicInteger.incrementAndGet()<=RETRY_MAX){
                     if(done){
                         atomicInteger.set(0);
                         done = false;
@@ -70,6 +72,9 @@ public class NettyClientImpl  implements NettyClient  {
                     RemoteExecuteReturnDTO dto = new RemoteExecuteReturnDTO();
                     dto.setSuccess(false);
                     dto.setMessage("timeout");
+                    atomicInteger.set(0);
+                    done = false;
+                    return dto;
                 }
             }
 
@@ -114,8 +119,16 @@ public class NettyClientImpl  implements NettyClient  {
             ChannelFuture cf = bs.connect(ip, port).sync();
             map.put(key, cf);
 
-            // 等待直到连接中断
-            cf.channel().closeFuture().sync();
+            new Thread( () -> {
+                // 等待直到连接中断
+                try {
+                    cf.channel().closeFuture().sync();
+                } catch (InterruptedException e) {
+                    logger.error( "create netty client error!!!" );
+                    e.printStackTrace();
+                }
+            } ).start();
+
         }
     }
 

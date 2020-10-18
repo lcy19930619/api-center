@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -31,7 +32,7 @@ import java.util.Random;
 @Service
 public class ForwardingServiceImpl implements ForwardingService {
 
-    @Autowired
+    @Resource
     private ServiceInfoDAO serviceInfoDAO;
     @Autowired
     private ZookeeperUtils zookeeperUtils;
@@ -39,6 +40,7 @@ public class ForwardingServiceImpl implements ForwardingService {
     private NettyClient nettyClient;
     @Autowired
     private BucClient bucClient;
+
     /**
      * 处理网关转发服务
      *
@@ -53,8 +55,8 @@ public class ForwardingServiceImpl implements ForwardingService {
             判断service code 是否正确
          */
         ServiceInfoDO serviceInfoDO = serviceInfoDAO.findByServiceCode( dto.getServiceCode() );
-        if(Objects.isNull(serviceInfoDO)){
-            return Mono.just(  ApiCenterResult.failed( ResultCodeEnum.SERVICE_CODE_IS_NOT_EXISTS ) );
+        if (Objects.isNull( serviceInfoDO )) {
+            return Mono.just( ApiCenterResult.failed( ResultCodeEnum.SERVICE_CODE_IS_NOT_EXISTS ) );
         }
 
         /*
@@ -62,14 +64,14 @@ public class ForwardingServiceImpl implements ForwardingService {
          */
         String appName = serviceInfoDO.getAppName();
         List<String> nodes = zookeeperUtils.listChildrenNodes( ApiCenterConstant.PARENT_NODE + "/" + appName );
-        if(CollectionUtils.isEmpty(nodes)){
+        if (CollectionUtils.isEmpty( nodes )) {
             return Mono.just( ApiCenterResult.failed( ResultCodeEnum.SERVER_IS_OFFLINE ) );
         }
 
         /*
             网关接口鉴权
          */
-        if(!bucClient.auth( "",dto.getServiceCode() )){
+        if (!bucClient.auth( "", dto.getServiceCode() )) {
             return Mono.just( ApiCenterResult.failed( ResultCodeEnum.SERVER_IS_OFFLINE ) );
         }
 
@@ -86,13 +88,15 @@ public class ForwardingServiceImpl implements ForwardingService {
          */
         RemoteExecuteParam remoteExecuteParam = new RemoteExecuteParam();
         remoteExecuteParam.setServiceCode( dto.getServiceCode() );
-        remoteExecuteParam.setMethodParamJson( JSON.toJSONString(dto.getRequestParam()) );
+        remoteExecuteParam.setMethodParamJson( JSON.toJSONString( dto.getRequestParam() ) );
         remoteExecuteParam.setMethodFlag( MethodFlagEnum.NORMAL.name() );
-        try{
-            nettyClient.createClient( split[0], Integer.valueOf(  split[1]  ));
+        try {
+            nettyClient.createClient( split[0], Integer.valueOf( split[1] ) );
+            remoteExecuteParam.setIp( split[0] );
+            remoteExecuteParam.setPort( Integer.valueOf( split[1] ) );
             RemoteExecuteReturnDTO result = nettyClient.send( remoteExecuteParam );
             return Mono.just( ApiCenterResult.success( result ) );
-        }catch (Exception e){
+        } catch (Exception e) {
             return Mono.just( ApiCenterResult.failed( ResultCodeEnum.REMOTE_EXECUTE_FAILED ) );
         }
     }

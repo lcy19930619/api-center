@@ -4,10 +4,10 @@ import net.jlxxw.apicenter.dto.ForwardingDTO;
 import net.jlxxw.apicenter.service.ForwardingService;
 import net.jlxxw.apicenter.vo.ApiCenterResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import reactor.core.publisher.Mono;
 
 /**
@@ -15,14 +15,15 @@ import reactor.core.publisher.Mono;
  *
  * @author LCY
  */
-@RestController
-@RequestMapping("api-center")
+@Controller
+@RequestMapping("apiCenter")
 public class ForwardingController {
     @Autowired
     private ForwardingService forwardingService;
 
-    @PostMapping("forward")
-    public Mono<ApiCenterResult> forward(@RequestBody ForwardingDTO dto){
+    @RequestMapping("execute")
+    @ResponseBody
+    public Mono<ApiCenterResult> execute(@RequestBody ForwardingDTO dto){
         return forwardingService.forward( dto );
     }
 }
