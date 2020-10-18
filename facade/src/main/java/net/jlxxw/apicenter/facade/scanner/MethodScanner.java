@@ -63,11 +63,11 @@ public class MethodScanner {
                     RemoteRegister annotation = declaredMethod.getAnnotation(RemoteRegister.class);
                     String serviceCode = annotation.serviceCode();
                     if(StringUtils.isBlank(serviceCode)){
-                        // 注解中的 service code 不能为空
+                        // 注解中的 buc code 不能为空
                         throw new IllegalArgumentException("method:" + declaredMethod +" serviceCode is not null");
                     }
                     if(REGISTRY_TABLE.containsKey(serviceCode)){
-                        // 注解中的 service code 不能重复
+                        // 注解中的 buc code 不能重复
                         MethodInfo methodInfo = REGISTRY_TABLE.get(serviceCode);
                         throw new IllegalArgumentException("method:" + declaredMethod + " serviceCode exists,please check "+methodInfo.getMethod().getName());
                     }

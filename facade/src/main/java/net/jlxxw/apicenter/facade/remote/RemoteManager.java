@@ -2,6 +2,7 @@ package net.jlxxw.apicenter.facade.remote;
 
 import net.jlxxw.apicenter.facade.constant.ApiCenterConstant;
 import net.jlxxw.apicenter.facade.exception.ApiCenterException;
+import net.jlxxw.apicenter.facade.netty.NettyProxy;
 import net.jlxxw.apicenter.facade.properties.ApiCenterClientProperties;
 import net.jlxxw.apicenter.facade.utils.IPAddressUtils;
 import net.jlxxw.apicenter.facade.utils.ZookeeperUtils;
@@ -22,6 +23,8 @@ public class RemoteManager extends AbstractRemoteManager {
     @Value("${spring.application.name}")
     private String applicationName;
 
+    @Autowired
+    private NettyProxy nettyProxy;
     /**
      * 向注册中心注册
      *
@@ -59,7 +62,7 @@ public class RemoteManager extends AbstractRemoteManager {
      */
     @Override
     protected void initNetty(ApiCenterClientProperties apiCenterClientProperties) throws ApiCenterException {
-
+        nettyProxy.initProxy( apiCenterClientProperties );
     }
 
     /**
