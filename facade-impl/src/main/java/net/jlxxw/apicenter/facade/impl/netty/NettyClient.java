@@ -23,6 +23,13 @@ public interface NettyClient {
     void createClient(String ip,int port) throws InterruptedException;
 
     /**
+     * 根据组合key，删除一个连接
+     * @param ip
+     * @param port
+     */
+    void removeClient(String ip,int port);
+
+    /**
      * netty方法执行完毕回调此方法
      * @param dto
      */

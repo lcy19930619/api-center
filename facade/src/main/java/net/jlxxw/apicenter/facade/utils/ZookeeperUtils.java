@@ -4,6 +4,7 @@ import net.jlxxw.apicenter.facade.exception.ApiCenterException;
 import net.jlxxw.apicenter.facade.properties.ApiCenterClientProperties;
 import net.jlxxw.apicenter.facade.watcher.ZookeeperWatcher;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
@@ -96,6 +97,19 @@ public class ZookeeperUtils {
     public byte[] getNodeData(String node)  throws ApiCenterException {
         try {
             return zooKeeper.getData(node, false, new Stat());
+        }catch (Exception e){
+            logger.error("zookeeper error :",e);
+            throw new ApiCenterException(e.getMessage());
+        }
+    }
+
+    /**
+     * 添加监听器
+     * @param watcher
+     */
+    public void addWatcher(Watcher watcher){
+        try {
+            zooKeeper.register( watcher );
         }catch (Exception e){
             logger.error("zookeeper error :",e);
             throw new ApiCenterException(e.getMessage());

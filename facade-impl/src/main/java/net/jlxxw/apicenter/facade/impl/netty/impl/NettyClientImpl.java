@@ -14,8 +14,8 @@ import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
 import net.jlxxw.apicenter.facade.impl.netty.ClientHandler;
 import net.jlxxw.apicenter.facade.impl.netty.NettyClient;
 import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -26,14 +26,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author zhanxiumei
  */
-@Component
 public class NettyClientImpl  implements NettyClient  {
 
-
+    private static final Logger logger = LoggerFactory.getLogger(NettyClientImpl.class);
+    /**
+     * netty的客户信息连接池
+     */
     private static Map<String, ChannelFuture> map = new ConcurrentHashMap<>();
-
-    @Autowired
-    private NettyClient nettyClient;
 
     private RemoteExecuteReturnDTO result = null;
 
@@ -88,6 +87,7 @@ public class NettyClientImpl  implements NettyClient  {
      */
     @Override
     public void createClient(String ip, int port) throws InterruptedException {
+        ClientHandler clientHandler = new ClientHandler( this );
         String key = ip + ":" + port;
         if (!map.containsKey(key)) {
             EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -106,7 +106,7 @@ public class NettyClientImpl  implements NettyClient  {
                             pipeline.addLast("encoder", new ObjectEncoder());
 
                             // 处理来自服务端的响应信息
-                            pipeline.addLast(new ClientHandler(nettyClient));
+                            pipeline.addLast(clientHandler);
                         }
                     });
 
@@ -116,6 +116,18 @@ public class NettyClientImpl  implements NettyClient  {
 
             // 等待直到连接中断
             cf.channel().closeFuture().sync();
+        }
+    }
+
+    @Override
+    public void removeClient(String ip, int port) {
+        String key = ip + ":" + port;
+        if (!map.containsKey(key)) {
+            ChannelFuture channelFuture = map.get(key);
+            Channel channel = channelFuture.channel();
+            channel.close();
+            map.remove( key );
+            logger.info( "remove netty client " + key);
         }
     }
 
