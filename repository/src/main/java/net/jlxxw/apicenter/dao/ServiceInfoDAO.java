@@ -7,4 +7,6 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
  * @author zhanxiumei
  */
 public interface ServiceInfoDAO extends ReactiveCrudRepository<ServiceInfoDO,Long> {
+
+    ServiceInfoDO findByServiceCode(String serviceCode);
 }

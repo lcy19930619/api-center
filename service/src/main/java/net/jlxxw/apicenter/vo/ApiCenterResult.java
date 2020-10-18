@@ -1,5 +1,7 @@
 package net.jlxxw.apicenter.vo;
 
+import net.jlxxw.apicenter.constant.ResultCodeInterface;
+
 /**
  * 网关执行结果
  * 2020-10-18 11:55
@@ -67,11 +69,15 @@ public class ApiCenterResult<T> {
         this.data = data;
     }
 
-    public ApiCenterResult success(T data){
-        return new ApiCenterResult(true,null,"success",data);
+    public static <T> ApiCenterResult success(T data){
+        return new ApiCenterResult<>(true,null,"success",data);
     }
 
-    public ApiCenterResult failed(String code,String message){
-        return new ApiCenterResult(false,message,code,null);
+    public static ApiCenterResult failed(String code, String message){
+        return new ApiCenterResult<>(false,message,code,null);
+    }
+
+    public static ApiCenterResult failed(ResultCodeInterface resultCodeInterface){
+        return new ApiCenterResult<>(false,resultCodeInterface.getMessage(),resultCodeInterface.getCode(),null);
     }
 }

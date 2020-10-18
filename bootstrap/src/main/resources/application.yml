@@ -2,7 +2,7 @@ spring:
   application:
     name: api-center
   r2dbc:
-    url: r2dbcs:mysql://127.0.0.1:3306/r2dbc
+    url: r2dbcs:mysql://127.0.0.1:3306/api_center
     username: root
     password: 123456
 server:

@@ -38,11 +38,11 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
      */
     @Override
     public RemoteExecuteReturnDTO execute(String json) {
+        logger.info( "api center send param:"+json );
         JSONObject jsonObject = JSON.parseObject(json);
 
         String methodFlag = jsonObject.getString("methodFlag");
         String serviceCode = jsonObject.getString("serviceCode");
-
 
         RemoteExecuteReturnDTO executeReturn = new RemoteExecuteReturnDTO();
 

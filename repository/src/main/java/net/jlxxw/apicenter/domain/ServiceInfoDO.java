@@ -30,6 +30,11 @@ public class ServiceInfoDO {
     private String appName;
 
     /**
+     * 所属应用ID
+     */
+    private Long appId;
+
+    /**
      * 接口信息描述
      */
     private String desc;

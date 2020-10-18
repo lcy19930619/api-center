@@ -1,4 +1,4 @@
-package net.jlxxw.apicenter.facade.config;
+package net.jlxxw.apicenter.config;
 
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
