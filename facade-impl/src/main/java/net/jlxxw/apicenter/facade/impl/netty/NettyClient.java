@@ -15,5 +15,16 @@ public interface NettyClient {
      * @param param
      * @return
      */
-    RemoteExecuteReturnDTO send(RemoteExecuteParam param);
+    RemoteExecuteReturnDTO send(RemoteExecuteParam param) throws InterruptedException;
+
+    /**
+     * 创建客户端
+     */
+    void createClient(String ip,int port) throws InterruptedException;
+
+    /**
+     * netty方法执行完毕回调此方法
+     * @param dto
+     */
+    void done(RemoteExecuteReturnDTO dto);
 }
