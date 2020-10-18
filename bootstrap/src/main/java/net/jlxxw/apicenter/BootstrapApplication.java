@@ -1,4 +1,4 @@
-package net.jlxxw.apicenter.bootstrap;
+package net.jlxxw.apicenter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
