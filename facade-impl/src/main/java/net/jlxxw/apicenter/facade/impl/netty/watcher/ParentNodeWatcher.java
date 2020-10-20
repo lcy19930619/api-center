@@ -35,18 +35,16 @@ public class ParentNodeWatcher implements Watcher {
                     // 节点创建通知，如果创建了一个节点，则会自动回调此函数
                     if (path.startsWith( ApiCenterConstant.PARENT_NODE )) {
                         // 创建一个新的netty客户端
-
-                        nettyClient.createClient(ip, port );
                     }
                     logger.info( "listener create node ：" + path );
                 }
                 if (event.getType() == Event.EventType.NodeDeleted) {
-                    nettyClient.removeClient( ip, port );
+                    nettyClient.removeChannel( ip, port );
                     logger.info( "listener delete node ：" + path );
                 }
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("zookeeper found exception:",e);
         }
     }
 }

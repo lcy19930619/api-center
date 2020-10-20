@@ -31,7 +31,7 @@ public class NettyClientImpl  implements NettyClient  {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientImpl.class);
     //管理以ip:端口号为key的连接池   FixedChannelPool继承SimpleChannelPool，有大小限制的连接池实现
-    public static ChannelPoolMap<InetSocketAddress, FixedChannelPool> poolMap;
+    public static AbstractChannelPoolMap<InetSocketAddress, FixedChannelPool> poolMap;
 
     /**
      * key channel ID，value 请求参数
@@ -120,5 +120,17 @@ public class NettyClientImpl  implements NettyClient  {
         RemoteExecuteParam remoteExecuteParam = map.get( channelId );
         remoteExecuteParam.setResult( param.getResult() );
         remoteExecuteParam.notify();
+    }
+
+    /**
+     * 当指定的服务下线后，移除此通道
+     *
+     * @param ip
+     * @param port
+     */
+    @Override
+    public void removeChannel(String ip, Integer port) {
+        InetSocketAddress address = new InetSocketAddress(ip, port);
+        poolMap.remove( address );
     }
 }

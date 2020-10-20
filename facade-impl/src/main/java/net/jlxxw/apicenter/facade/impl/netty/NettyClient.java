@@ -22,4 +22,11 @@ public interface NettyClient {
      * @param param
      */
     void done(RemoteExecuteParam param);
+
+    /**
+     * 当指定的服务下线后，移除此通道
+     * @param ip
+     * @param port
+     */
+    void removeChannel(String ip,Integer port);
 }
