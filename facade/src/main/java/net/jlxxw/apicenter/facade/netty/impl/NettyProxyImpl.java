@@ -1,15 +1,15 @@
 package net.jlxxw.apicenter.facade.netty.impl;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 import net.jlxxw.apicenter.facade.exception.ApiCenterException;
 import net.jlxxw.apicenter.facade.netty.NettyProxy;
 import net.jlxxw.apicenter.facade.properties.ApiCenterClientProperties;
@@ -34,47 +34,37 @@ public class NettyProxyImpl implements NettyProxy {
      */
     @Override
     public void initProxy(ApiCenterClientProperties apiCenterClientProperties) throws ApiCenterException {
+        int port = apiCenterClientProperties.getPort();
 
-
-        // 用来接收进来的连接
-        EventLoopGroup bossGroup = new NioEventLoopGroup( 1 );
-        // 用来处理已经被接收的连接，一旦bossGroup接收到连接，就会把连接信息注册到workerGroup上
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        //netty主从线程模型(建立2个线程组) 一个用于网络读写   一个用于和客户的进行连接
+        EventLoopGroup bossGroup=new NioEventLoopGroup();
+        EventLoopGroup workerGroup=new NioEventLoopGroup();
         try {
-            // nio服务的启动类
-            ServerBootstrap sbs = new ServerBootstrap();
-            // 配置nio服务参数
-            sbs.group( bossGroup, workerGroup )
-                    .channel( NioServerSocketChannel.class ) // 说明一个新的Channel如何接收进来的连接
-                    .option( ChannelOption.SO_BACKLOG, 128 ) // tcp最大缓存链接个数
-                    .childOption( ChannelOption.SO_KEEPALIVE, true ) //保持连接
-                    .handler( new LoggingHandler( LogLevel.INFO ) ) // 打印日志级别
-                    .childHandler( new ChannelInitializer<SocketChannel>() {
+            //启动辅助类 用于配置各种参数
+            ServerBootstrap b=new ServerBootstrap();
+            b.group(bossGroup,workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_BACKLOG,1024)//最大排列队数
+                    .childHandler(new ChannelInitializer<SocketChannel>(){
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ChannelPipeline pipeline = socketChannel.pipeline();
-                            // 处理接收到的请求
-                            pipeline.addLast( "decoder", new ObjectDecoder( Integer.MAX_VALUE, ClassResolvers
-                                    .weakCachingConcurrentResolver( this.getClass().getClassLoader() ) ) );
-                            pipeline.addLast( "encoder", new ObjectEncoder() );
-
-                            pipeline.addLast( new ServerHandler( abstractRemoteExecuteProxy ) );
+                            socketChannel.pipeline().addLast(new LineBasedFrameDecoder(8192));//以换行符为结束位置进行分包
+                            socketChannel.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
+                            socketChannel.pipeline().addLast(new ServerHandler( abstractRemoteExecuteProxy ));//处理类
                         }
-                    } );
-            logger.info( "netty starter listener:" + apiCenterClientProperties.getPort() );
-            // 绑定端口，开始接受链接
-            ChannelFuture cf = sbs.bind( apiCenterClientProperties.getPort() ).sync();
-            // 等待服务端口的关闭；在这个例子中不会发生，但你可以优雅实现；关闭你的服务
-            if (cf != null) {
-                cf.channel().closeFuture().sync();
-            }
+                    });
+            //绑定端口 同步等待成功
+            ChannelFuture future=b.bind(port).sync();
+            logger.info("netty server start on port:"+port);
+            //同步等待服务端监听端口关闭
+            future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            logger.error( "netty starter failed", e );
+            logger.error( "netty error :"+e );
         } finally {
+            //释放资源退出
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-
-
     }
+
 }

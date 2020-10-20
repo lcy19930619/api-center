@@ -1,15 +1,16 @@
 package net.jlxxw.apicenter.facade.impl.netty.impl;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelId;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.pool.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
 import net.jlxxw.apicenter.facade.impl.netty.ClientHandler;
 import net.jlxxw.apicenter.facade.impl.netty.NettyClient;
@@ -18,11 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author zhanxiumei
@@ -31,18 +30,48 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class NettyClientImpl  implements NettyClient  {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientImpl.class);
+    //管理以ip:端口号为key的连接池   FixedChannelPool继承SimpleChannelPool，有大小限制的连接池实现
+    public static ChannelPoolMap<InetSocketAddress, FixedChannelPool> poolMap;
+
     /**
-     * netty的客户信息连接池
+     * key channel ID，value 请求参数
      */
-    private static Map<String, ChannelFuture> map = new ConcurrentHashMap<>();
+    public static Map<String,RemoteExecuteParam> map = new ConcurrentHashMap<>();
+    //启动辅助类 用于配置各种参数
+    private  Bootstrap bootstrap =new Bootstrap();
 
-    private RemoteExecuteReturnDTO result = null;
+    public NettyClientImpl(){
+        ClientHandler clientHandler = new ClientHandler( this );
+        bootstrap.group(new NioEventLoopGroup())
+                .channel( NioSocketChannel.class)
+                .option( ChannelOption.TCP_NODELAY,true);
+        poolMap = new AbstractChannelPoolMap<InetSocketAddress, FixedChannelPool>() {
+            @Override
+            protected FixedChannelPool newPool(InetSocketAddress inetSocketAddress) {
+                ChannelPoolHandler handler = new ChannelPoolHandler() {
+                    //使用完channel需要释放才能放入连接池
+                    @Override
+                    public void channelReleased(Channel ch) throws Exception {
 
-    private volatile Boolean done = false;
+                    }
+                    //当链接创建的时候添加channel handler，只有当channel不足时会创建，但不会超过限制的最大channel数
+                    @Override
+                    public void channelCreated(Channel ch) throws Exception {
+                        logger.info("channelCreated. Channel ID: " + ch.id());
+                        ch.pipeline().addLast(new LineBasedFrameDecoder(8192));//以换行符分包
+                        ch.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
+                        ch.pipeline().addLast(clientHandler);//添加相应回调处理
+                    }
+                    //获取连接池中的channel
+                    @Override
+                    public void channelAcquired(Channel ch) throws Exception {
 
-    private AtomicInteger atomicInteger = new AtomicInteger(0);
-
-    private static final int RETRY_MAX = 5;
+                    }
+                };
+                return new FixedChannelPool(bootstrap.remoteAddress(inetSocketAddress), handler, 5); //单个服务端连接池大小
+            }
+        };
+    }
     /**
      * 向远程服务发送相关数据
      *
@@ -51,102 +80,45 @@ public class NettyClientImpl  implements NettyClient  {
      */
     @Override
     public RemoteExecuteReturnDTO send(RemoteExecuteParam param) throws InterruptedException {
-        ChannelFuture channelFuture = map.get(param.getIp() + ":" + param.getPort());
-        Channel channel = channelFuture.channel();
-        if (channel.isOpen()) {
-            // 发送客户端的请求
-            channel.writeAndFlush(Unpooled.copiedBuffer(JSON.toJSONString(param).getBytes(StandardCharsets.UTF_8)));
-
-            while(true){
-                if(atomicInteger.incrementAndGet()<=RETRY_MAX){
-                    if(done){
-                        atomicInteger.set(0);
-                        done = false;
-                        RemoteExecuteReturnDTO result = this.result;
-                        this.result = null;
-                        return result;
-                    }else{
-                        Thread.sleep(300);
-                    }
-                }else{
-                    RemoteExecuteReturnDTO dto = new RemoteExecuteReturnDTO();
-                    dto.setSuccess(false);
-                    dto.setMessage("timeout");
-                    atomicInteger.set(0);
-                    done = false;
-                    return dto;
-                }
+        String ip = param.getIp();
+        Integer port = param.getPort();
+        InetSocketAddress address = new InetSocketAddress(ip, port);
+        final SimpleChannelPool pool = poolMap.get(address);
+        final Future<Channel> future = pool.acquire();
+        future.addListener( (FutureListener<Channel>) arg0 -> {
+            if (future.isSuccess()) {
+                Channel ch = future.getNow();
+                ChannelId id = ch.id();
+                String tempId = id.toString();
+                param.setChannelId( tempId );
+                map.put( tempId,param );
+                ch.writeAndFlush(param);
+                //放回去
+                pool.release(ch);
             }
-
-        } else {
-            channel.connect(new SocketAddress() {
-                // todo
-            });
+        } );
+        synchronized (param) {
+            //因为异步 所以不阻塞的话 该线程获取不到返回值
+            //放弃对象锁 并阻塞等待notify
+            try {
+                param.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-        return null;
+        return param.getResult();
     }
+
 
     /**
-     * 创建客户端
+     * netty方法执行完毕回调此方法
+     * @param param
      */
     @Override
-    public void createClient(String ip, int port) throws InterruptedException {
-        ClientHandler clientHandler = new ClientHandler( this );
-        String key = ip + ":" + port;
-        if (!map.containsKey(key)) {
-            EventLoopGroup bossGroup = new NioEventLoopGroup();
-
-            Bootstrap bs = new Bootstrap();
-
-            bs.group(bossGroup)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.SO_KEEPALIVE, true)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ChannelPipeline pipeline = socketChannel.pipeline();
-                            pipeline.addLast("decoder", new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers
-                                    .weakCachingConcurrentResolver(this.getClass().getClassLoader())));
-                            pipeline.addLast("encoder", new ObjectEncoder());
-
-                            // 处理来自服务端的响应信息
-                            pipeline.addLast(clientHandler);
-                        }
-                    });
-
-            // 客户端开启
-            ChannelFuture cf = bs.connect(ip, port).sync();
-            map.put(key, cf);
-
-            new Thread( () -> {
-                // 等待直到连接中断
-                try {
-                    cf.channel().closeFuture().sync();
-                } catch (InterruptedException e) {
-                    logger.error( "create netty client error!!!" );
-                    e.printStackTrace();
-                }
-            } ).start();
-
-        }
-    }
-
-    @Override
-    public void removeClient(String ip, int port) {
-        String key = ip + ":" + port;
-        if (!map.containsKey(key)) {
-            ChannelFuture channelFuture = map.get(key);
-            Channel channel = channelFuture.channel();
-            channel.close();
-            map.remove( key );
-            logger.info( "remove netty client " + key);
-        }
-    }
-
-    @Override
-    public void done(RemoteExecuteReturnDTO result){
-        done = true;
-        this.result = result;
+    public void done(RemoteExecuteParam param){
+        String channelId = param.getChannelId();
+        RemoteExecuteParam remoteExecuteParam = map.get( channelId );
+        remoteExecuteParam.setResult( param.getResult() );
+        remoteExecuteParam.notify();
     }
 }

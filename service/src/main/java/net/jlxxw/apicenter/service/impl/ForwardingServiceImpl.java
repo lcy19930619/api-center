@@ -91,7 +91,6 @@ public class ForwardingServiceImpl implements ForwardingService {
         remoteExecuteParam.setMethodParamJson( JSON.toJSONString( dto.getRequestParam() ) );
         remoteExecuteParam.setMethodFlag( MethodFlagEnum.NORMAL.name() );
         try {
-            nettyClient.createClient( split[0], Integer.valueOf( split[1] ) );
             remoteExecuteParam.setIp( split[0] );
             remoteExecuteParam.setPort( Integer.valueOf( split[1] ) );
             RemoteExecuteReturnDTO result = nettyClient.send( remoteExecuteParam );

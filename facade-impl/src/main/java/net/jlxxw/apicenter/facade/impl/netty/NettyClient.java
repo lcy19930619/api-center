@@ -18,20 +18,8 @@ public interface NettyClient {
     RemoteExecuteReturnDTO send(RemoteExecuteParam param) throws InterruptedException;
 
     /**
-     * 创建客户端
-     */
-    void createClient(String ip,int port) throws InterruptedException;
-
-    /**
-     * 根据组合key，删除一个连接
-     * @param ip
-     * @param port
-     */
-    void removeClient(String ip,int port);
-
-    /**
      * netty方法执行完毕回调此方法
-     * @param dto
+     * @param param
      */
-    void done(RemoteExecuteReturnDTO dto);
+    void done(RemoteExecuteParam param);
 }

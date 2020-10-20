@@ -1,5 +1,7 @@
 package net.jlxxw.apicenter.facade.param;
 
+import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
+
 import java.io.Serializable;
 
 /**
@@ -26,6 +28,15 @@ public class RemoteExecuteParam implements Serializable {
 
     private Integer port;
 
+    /**
+     * 执行结果
+     */
+    private RemoteExecuteReturnDTO result;
+
+    /**
+     * netty 唯一编号
+     */
+    private String channelId;
     public String getIp() {
         return ip;
     }
@@ -64,5 +75,21 @@ public class RemoteExecuteParam implements Serializable {
 
     public void setMethodFlag(String methodFlag) {
         this.methodFlag = methodFlag;
+    }
+
+    public RemoteExecuteReturnDTO getResult() {
+        return result;
+    }
+
+    public void setResult(RemoteExecuteReturnDTO result) {
+        this.result = result;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 }

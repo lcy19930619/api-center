@@ -10,7 +10,6 @@ import net.jlxxw.apicenter.facade.remote.AbstractRemoteExecuteProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -38,19 +37,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
-        // 普通的处理 及过滤器不多
-        simpleRead(ctx, msg);
-    }
-
-    /**
-     * 最简单的处理
-     *
-     * @param ctx
-     * @param msg
-     * @throws UnsupportedEncodingException
-     */
-    public void simpleRead(ChannelHandlerContext ctx, Object msg)  {
-
         ByteBuf bb = (ByteBuf) msg;
         // 创建一个和buf同等长度的字节数组
         byte[] reqByte = new byte[bb.readableBytes()];
@@ -65,6 +51,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         // 返回给客户端响应                                                                                                                                                       和客户端链接中断即短连接，当信息返回给客户端后中断
         ctx.writeAndFlush(Unpooled.copiedBuffer(result.getBytes()));
     }
+
 
     /**
      * 数据读取完毕的处理
