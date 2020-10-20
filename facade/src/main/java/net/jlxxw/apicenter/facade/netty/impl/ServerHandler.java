@@ -1,16 +1,14 @@
 package net.jlxxw.apicenter.facade.netty.impl;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
+import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
 import net.jlxxw.apicenter.facade.remote.AbstractRemoteExecuteProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * 处理某个客户端的请求
@@ -37,12 +35,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
-        ByteBuf bb = (ByteBuf) msg;
-        // 创建一个和buf同等长度的字节数组
-        byte[] reqByte = new byte[bb.readableBytes()];
-        // 将buf中的数据读取到数组中
-        bb.readBytes(reqByte);
-        String reqStr = new String(reqByte, StandardCharsets.UTF_8);
+        RemoteExecuteParam bb = (RemoteExecuteParam) msg;
+        String reqStr = JSON.toJSONString( bb );
         logger.info(" A request is received from the client： " + reqStr);
         //远程调用的执行请求的返回值
         RemoteExecuteReturnDTO execute = abstractRemoteExecuteProxy.execute(reqStr);

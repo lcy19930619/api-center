@@ -96,8 +96,7 @@ public class NettyClientImpl  implements NettyClient  {
                 String tempId = id.toString();
                 param.setChannelId( tempId );
                 map.put( tempId,param );
-              //  ch.writeAndFlush(param+"\n");
-                ch.writeAndFlush("1111\n");
+                ch.writeAndFlush(param);
                 //放回去
                 pool.release(ch);
             }

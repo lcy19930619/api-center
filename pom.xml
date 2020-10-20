@@ -84,7 +84,7 @@
             <dependency>
                 <groupId>net.jlxxw.api-center</groupId>
                 <artifactId>facade</artifactId>
-                <version>1.0.0.2020.10.20</version>
+                <version>1.0.0.2020.10.20.8</version>
             </dependency>
             <dependency>
                 <groupId>net.jlxxw.api-center</groupId>
