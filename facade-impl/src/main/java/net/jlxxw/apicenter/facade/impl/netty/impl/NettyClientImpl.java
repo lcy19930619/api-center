@@ -5,10 +5,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.pool.*;
+import io.netty.channel.pool.AbstractChannelPoolMap;
+import io.netty.channel.pool.ChannelPoolHandler;
+import io.netty.channel.pool.FixedChannelPool;
+import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.LineBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
@@ -58,8 +62,8 @@ public class NettyClientImpl  implements NettyClient  {
                     @Override
                     public void channelCreated(Channel ch) throws Exception {
                         logger.info("channelCreated. Channel ID: " + ch.id());
-                        ch.pipeline().addLast(new LineBasedFrameDecoder(8192));//以换行符分包
-                        ch.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
+                        ch.pipeline().addLast(new ObjectEncoder());
+                        ch.pipeline().addLast(new ObjectDecoder(Integer.MAX_VALUE,  ClassResolvers.weakCachingConcurrentResolver(null)));
                         ch.pipeline().addLast(clientHandler);//添加相应回调处理
                     }
                     //获取连接池中的channel
@@ -92,7 +96,8 @@ public class NettyClientImpl  implements NettyClient  {
                 String tempId = id.toString();
                 param.setChannelId( tempId );
                 map.put( tempId,param );
-                ch.writeAndFlush(param);
+              //  ch.writeAndFlush(param+"\n");
+                ch.writeAndFlush("1111\n");
                 //放回去
                 pool.release(ch);
             }
@@ -132,5 +137,14 @@ public class NettyClientImpl  implements NettyClient  {
     public void removeChannel(String ip, Integer port) {
         InetSocketAddress address = new InetSocketAddress(ip, port);
         poolMap.remove( address );
+    }
+
+
+    public static void main(String[] args) throws InterruptedException {
+        RemoteExecuteParam remoteExecuteParam = new RemoteExecuteParam();
+        remoteExecuteParam.setIp( "192.168.1.31" );
+        remoteExecuteParam.setPort( 31697 );
+        RemoteExecuteReturnDTO send = new NettyClientImpl().send( remoteExecuteParam );
+
     }
 }

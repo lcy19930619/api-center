@@ -8,8 +8,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.LineBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import net.jlxxw.apicenter.facade.exception.ApiCenterException;
 import net.jlxxw.apicenter.facade.netty.NettyProxy;
 import net.jlxxw.apicenter.facade.properties.ApiCenterClientProperties;
@@ -48,8 +49,9 @@ public class NettyProxyImpl implements NettyProxy {
                     .childHandler(new ChannelInitializer<SocketChannel>(){
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new LineBasedFrameDecoder(8192));//以换行符为结束位置进行分包
-                            socketChannel.pipeline().addLast(new StringDecoder());//将接收到的对象转为字符串
+                            socketChannel.pipeline().addLast(new ObjectEncoder());
+                            socketChannel.pipeline().addLast(new ObjectDecoder(Integer.MAX_VALUE,
+                                    ClassResolvers.weakCachingConcurrentResolver(null)));
                             socketChannel.pipeline().addLast(new ServerHandler( abstractRemoteExecuteProxy ));//处理类
                         }
                     });
