@@ -27,7 +27,10 @@ public class MethodInfo {
      */
     private boolean hasReturn;
 
-
+    /**
+     * 方法参数名字
+     */
+    private String[] methodParamNames;
     public Object getObject() {
         return object;
     }
@@ -58,5 +61,13 @@ public class MethodInfo {
 
     public void setHasReturn(boolean hasReturn) {
         this.hasReturn = hasReturn;
+    }
+
+    public String[] getMethodParamNames() {
+        return methodParamNames;
+    }
+
+    public void setMethodParamNames(String[] methodParamNames) {
+        this.methodParamNames = methodParamNames;
     }
 }

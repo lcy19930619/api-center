@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -33,12 +34,13 @@ public class MethodScanner {
      * @param parameterTypes 方法参数类型列表
      * @param hasReturn 是否具有返回值
      */
-    private void registry(Object object, Method method,String serviceCode,Class[] parameterTypes,boolean hasReturn){
+    private void registry(Object object, Method method,String serviceCode,Class[] parameterTypes,boolean hasReturn,String[] methodParamNames){
         MethodInfo methodInfo = new MethodInfo();
         methodInfo.setParameterTypes(parameterTypes);
         methodInfo.setMethod(method);
         methodInfo.setObject(object);
         methodInfo.setHasReturn(hasReturn);
+        methodInfo.setMethodParamNames(methodParamNames);
         REGISTRY_TABLE.put(serviceCode,methodInfo);
         logger.info("registry method "+method);
     }
@@ -83,7 +85,11 @@ public class MethodScanner {
                             }
                         }
                     }
-                    registry(bean,declaredMethod,serviceCode,parameterTypes,"void".equals(returnType.getName()));
+                    // 获取全部方法参数名称
+                    LocalVariableTableParameterNameDiscoverer localVariableTableParameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+                    String[] parameterNames = localVariableTableParameterNameDiscoverer.getParameterNames(declaredMethod);
+
+                    registry(bean,declaredMethod,serviceCode,parameterTypes,"void".equals(returnType.getName()),parameterNames);
                 }
             }
         }

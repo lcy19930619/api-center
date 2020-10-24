@@ -50,18 +50,17 @@ public class NettyProxyImpl implements NettyProxy {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(new ObjectEncoder());
-                            socketChannel.pipeline().addLast(new ObjectDecoder(Integer.MAX_VALUE,
-                                    ClassResolvers.weakCachingConcurrentResolver(null)));
+                            socketChannel.pipeline().addLast(new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.weakCachingConcurrentResolver(null)));
                             socketChannel.pipeline().addLast(new ServerHandler( abstractRemoteExecuteProxy ));//处理类
                         }
                     });
             //绑定端口 同步等待成功
             ChannelFuture future=b.bind(port).sync();
-            logger.info("netty server start on port:"+port);
+            logger.info("api center client listener on port:"+port);
             //同步等待服务端监听端口关闭
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            logger.error( "netty error :"+e );
+            logger.error( "api center start error :"+e );
         } finally {
             //释放资源退出
             bossGroup.shutdownGracefully();

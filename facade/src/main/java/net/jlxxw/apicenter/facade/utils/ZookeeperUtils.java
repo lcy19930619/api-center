@@ -25,8 +25,11 @@ import java.util.Objects;
 public class ZookeeperUtils {
     private static final Logger logger = LoggerFactory.getLogger(ZookeeperUtils.class);
     private ZooKeeper zooKeeper = null;
+
+    private ZookeeperWatcher zookeeperWatcher = null;
     private ZookeeperUtils(ApiCenterClientProperties apiCenterClientProperties) throws IOException {
-       zooKeeper = new ZooKeeper(apiCenterClientProperties.getZookeeperHosts(), apiCenterClientProperties.getTimeout(), new ZookeeperWatcher());
+        zookeeperWatcher = new ZookeeperWatcher(apiCenterClientProperties,this);
+        zooKeeper = new ZooKeeper(apiCenterClientProperties.getZookeeperHosts(), apiCenterClientProperties.getTimeout(), zookeeperWatcher);
     }
 
     /**
@@ -51,7 +54,7 @@ public class ZookeeperUtils {
      */
     public Boolean existsNode(String node) throws ApiCenterException  {
         try {
-             return Objects.nonNull(zooKeeper.exists(node, new ZookeeperWatcher()));
+             return Objects.nonNull(zooKeeper.exists(node, zookeeperWatcher));
         }catch (Exception e){
             logger.error("zookeeper error :",e);
             throw new ApiCenterException(e.getMessage());
@@ -114,6 +117,10 @@ public class ZookeeperUtils {
             logger.error("zookeeper error :",e);
             throw new ApiCenterException(e.getMessage());
         }
+    }
+
+    public void resetConnection(ApiCenterClientProperties apiCenterClientProperties) throws IOException {
+        zooKeeper = new ZooKeeper(apiCenterClientProperties.getZookeeperHosts(), apiCenterClientProperties.getTimeout(), zookeeperWatcher);
     }
 
 

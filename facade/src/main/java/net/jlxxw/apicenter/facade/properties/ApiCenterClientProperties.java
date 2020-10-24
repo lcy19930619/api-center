@@ -27,6 +27,11 @@ public class ApiCenterClientProperties {
      */
     private int timeout = 5000;
 
+    /**
+     * 自定义的当前服务ip，如果不指定，则由程序自行获取
+     */
+    private String serverIp;
+
 
     public String getZookeeperHosts() {
         return zookeeperHosts;
@@ -51,4 +56,13 @@ public class ApiCenterClientProperties {
     public void setPort(int port) {
         this.port = port;
     }
+
+    public String getServerIp() {
+        return serverIp;
+    }
+
+    public void setServerIp(String serverIp) {
+        this.serverIp = serverIp;
+    }
+
 }

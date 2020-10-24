@@ -11,6 +11,7 @@ import net.jlxxw.apicenter.facade.enums.MethodFlagEnum;
 import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
 import net.jlxxw.apicenter.facade.param.RemoteFileDownLoadParam;
 import net.jlxxw.apicenter.facade.param.RemoteMultipartFileParam;
+import net.jlxxw.apicenter.facade.param.RemoteUserInfo;
 import net.jlxxw.apicenter.facade.scanner.MethodInfo;
 import net.jlxxw.apicenter.facade.scanner.MethodScanner;
 import net.jlxxw.apicenter.facade.utils.RemoteParamUtils;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -93,8 +95,24 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
         Class[] parameterTypes = methodInfo.getParameterTypes();
         // 执行的真实对象
         Object object = methodInfo.getObject();
+        // 全部参数名称列表
+        String[] methodParamNames = methodInfo.getMethodParamNames();
         // 方法的具体参数
-        Object[] args = RemoteParamUtils.decode(param.getMethodParamJson(), parameterTypes);
+        Object[] args = RemoteParamUtils.decode(param.getMethodParamJson(), methodParamNames);
+
+        if(Objects.nonNull(parameterTypes)){
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if(parameterTypes[i].equals(RemoteUserInfo.class)){
+                    // 准备用户基本信息
+                    args[i] = param.getRemoteUserInfo();
+                }
+                if(parameterTypes[i].equals(MultipartFile.class)){
+                    // 如果是上传文件类型的参数，需要单独处理这个参数
+
+                }
+            }
+        }
+
         try{
             method.invoke(object, args);
         }catch (Exception e){

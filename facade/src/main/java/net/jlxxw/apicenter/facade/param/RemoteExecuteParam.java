@@ -24,14 +24,25 @@ public class RemoteExecuteParam implements Serializable {
      */
     private String methodFlag;
 
+    /**
+     * 目标服务的ip
+     */
     private String ip;
 
+    /**
+     * 目标服务的端口
+     */
     private Integer port;
 
     /**
      * 执行结果
      */
     private RemoteExecuteReturnDTO result;
+
+    /**
+     * 用户的基本信息
+     */
+    private RemoteUserInfo remoteUserInfo;
 
     /**
      * netty 唯一编号
@@ -91,5 +102,13 @@ public class RemoteExecuteParam implements Serializable {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public RemoteUserInfo getRemoteUserInfo() {
+        return remoteUserInfo;
+    }
+
+    public void setRemoteUserInfo(RemoteUserInfo remoteUserInfo) {
+        this.remoteUserInfo = remoteUserInfo;
     }
 }

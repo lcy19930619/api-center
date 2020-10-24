@@ -7,6 +7,8 @@ import net.jlxxw.apicenter.facade.properties.ApiCenterClientProperties;
 import net.jlxxw.apicenter.facade.utils.IPAddressUtils;
 import net.jlxxw.apicenter.facade.utils.ZookeeperUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RemoteManager extends AbstractRemoteManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(RemoteManager.class);
     @Autowired
     private ZookeeperUtils zookeeperUtils;
 
@@ -47,7 +50,17 @@ public class RemoteManager extends AbstractRemoteManager {
             // 如果节点不存在，创建节点
             zookeeperUtils.createOpenACLPersistentNode( parentPath, "".getBytes() );
         }
-        parentPath = parentPath + "/" + IPAddressUtils.getIpAddress() + ":" + apiCenterClientProperties.getPort();
+
+        String serverIp = apiCenterClientProperties.getServerIp();
+
+
+        if(StringUtils.isBlank(serverIp)){
+            String ipAddress = IPAddressUtils.getIpAddress();
+            logger.info("server ip not found,enable automatic acquisition,ip address :"+ipAddress);
+        }
+
+
+        parentPath = parentPath + "/" + serverIp + ":" + apiCenterClientProperties.getPort();
         if (!zookeeperUtils.existsNode( parentPath )) {
             // 如果节点不存在，创建节点
             zookeeperUtils.createOpenACLEphemeralNode( parentPath, "".getBytes() );

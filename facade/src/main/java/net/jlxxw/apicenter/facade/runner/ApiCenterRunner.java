@@ -39,7 +39,7 @@ public class ApiCenterRunner implements ApplicationContextAware, ApplicationRunn
      * @throws Exception
      */
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         // 扫描全部bean
         logger.info("begin scan method");
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
