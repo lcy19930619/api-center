@@ -9,7 +9,6 @@ import com.alibaba.fastjson.JSONObject;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
 import net.jlxxw.apicenter.facade.enums.MethodFlagEnum;
 import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
-import net.jlxxw.apicenter.facade.param.RemoteFileDownLoadParam;
 import net.jlxxw.apicenter.facade.param.RemoteMultipartFileParam;
 import net.jlxxw.apicenter.facade.param.RemoteUserInfo;
 import net.jlxxw.apicenter.facade.scanner.MethodInfo;
@@ -85,6 +84,38 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
      */
     @Override
     protected RemoteExecuteReturnDTO remoteExecute(RemoteExecuteParam param) {
+        return invoke(param);
+    }
+
+    /**
+     * 远程执行上传文件
+     *
+     * @param remoteMultipartFileParam 远程执行的输入参数
+     * @return 本地执行完毕的返回参数
+     */
+    @Override
+    protected RemoteExecuteReturnDTO remoteUpload(RemoteMultipartFileParam remoteMultipartFileParam) {
+        return invoke(remoteMultipartFileParam);
+    }
+
+    /**
+     * 远程执行下载
+     *
+     * @param param 远程执行的输入参数
+     * @return 本地执行完毕的返回参数
+     */
+    @Override
+    protected RemoteExecuteReturnDTO remoteDownLoad(RemoteExecuteParam param) {
+        return invoke(param);
+    }
+
+
+    /**
+     * 反射执行
+     * @param param
+     * @return
+     */
+    private RemoteExecuteReturnDTO invoke(RemoteExecuteParam param) {
         RemoteExecuteReturnDTO executeReturn = new RemoteExecuteReturnDTO();
         String serviceCode = param.getServiceCode();
         // 从本地方法注册表寻找需要执行的方法
@@ -100,6 +131,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
         // 方法的具体参数
         Object[] args = RemoteParamUtils.decode(param.getMethodParamJson(), methodParamNames);
 
+        // 处理全部参数类型
         if(Objects.nonNull(parameterTypes)){
             for (int i = 0; i < parameterTypes.length; i++) {
                 if(parameterTypes[i].equals(RemoteUserInfo.class)){
@@ -108,7 +140,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
                 }
                 if(parameterTypes[i].equals(MultipartFile.class)){
                     // 如果是上传文件类型的参数，需要单独处理这个参数
-
+                    args[i] = param;
                 }
             }
         }
@@ -126,25 +158,4 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
         return executeReturn;
     }
 
-    /**
-     * 远程执行上传文件
-     *
-     * @param remoteMultipartFileParam 远程执行的输入参数
-     * @return 本地执行完毕的返回参数
-     */
-    @Override
-    protected RemoteExecuteReturnDTO remoteUpload(RemoteMultipartFileParam remoteMultipartFileParam) {
-        return null;
-    }
-
-    /**
-     * 远程执行下载
-     *
-     * @param param 远程执行的输入参数
-     * @return 本地执行完毕的返回参数
-     */
-    @Override
-    protected RemoteFileDownLoadParam remoteDownLoad(RemoteExecuteParam param) {
-        return null;
-    }
 }

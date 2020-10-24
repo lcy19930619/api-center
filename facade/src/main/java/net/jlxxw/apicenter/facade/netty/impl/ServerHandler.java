@@ -1,7 +1,6 @@
 package net.jlxxw.apicenter.facade.netty.impl;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
@@ -40,10 +39,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         logger.info(" A request is received from the client： " + reqStr);
         //远程调用的执行请求的返回值
         RemoteExecuteReturnDTO execute = abstractRemoteExecuteProxy.execute(reqStr);
-        //将执行结果转换成json格式
-        String result = JSON.toJSONString(execute);
         // 返回给客户端响应                                                                                                                                                       和客户端链接中断即短连接，当信息返回给客户端后中断
-        ctx.writeAndFlush(Unpooled.copiedBuffer(result.getBytes()));
+        ctx.writeAndFlush(execute);
     }
 
 

@@ -32,6 +32,12 @@ public class RemoteExecuteReturnDTO implements Serializable {
      */
     private boolean hasReturn;
 
+
+    /**
+     * netty 唯一编号
+     */
+    private String channelId;
+
     public String getServiceCode() {
         return serviceCode;
     }
@@ -72,4 +78,11 @@ public class RemoteExecuteReturnDTO implements Serializable {
         this.message = message;
     }
 
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 }
