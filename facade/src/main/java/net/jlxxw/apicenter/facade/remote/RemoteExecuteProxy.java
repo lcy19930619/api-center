@@ -46,7 +46,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
         String serviceCode = jsonObject.getString("serviceCode");
 
         RemoteExecuteReturnDTO executeReturn = new RemoteExecuteReturnDTO();
-
+        executeReturn.setChannelId(jsonObject.getString("channelId"));
         MethodInfo methodInfo = methodScanner.getMethod(serviceCode);
         if(Objects.isNull(methodInfo)){
             executeReturn.setSuccess(false);
@@ -54,25 +54,26 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
             return executeReturn;
         }
 
-
+        RemoteExecuteReturnDTO dto = new RemoteExecuteReturnDTO();
+        dto.setSuccess(false);
+        dto.setMessage("api center method flag error");
         if(MethodFlagEnum.NORMAL.name().equals(methodFlag)){
             RemoteExecuteParam remoteExecuteParam = jsonObject.toJavaObject(RemoteExecuteParam.class);
             // 执行普通方法
-           return remoteExecute(remoteExecuteParam);
+            dto =  remoteExecute(remoteExecuteParam);
         }
         if(MethodFlagEnum.UPLOAD.name().equals(methodFlag)){
             // 执行上传方法
             RemoteMultipartFileParam remoteExecuteParam = jsonObject.toJavaObject(RemoteMultipartFileParam.class);
-            return remoteUpload(remoteExecuteParam);
+            dto =   remoteUpload(remoteExecuteParam);
         }
         if(MethodFlagEnum.DOWNLOAD.name().equals(methodFlag)){
             RemoteExecuteParam remoteExecuteParam = jsonObject.toJavaObject(RemoteExecuteParam.class);
             // 执行下载方法
-            return remoteDownLoad(remoteExecuteParam);
+            dto =   remoteDownLoad(remoteExecuteParam);
         }
-        RemoteExecuteReturnDTO dto = new RemoteExecuteReturnDTO();
-        dto.setSuccess(false);
-        dto.setMessage("api center method flag error");
+        dto.setChannelId(jsonObject.getString("channelId"));
+
         return dto;
     }
 
