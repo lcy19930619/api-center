@@ -25,7 +25,7 @@ public class RemoteExecuteReturnDTO implements Serializable {
     /**
      * 方法执行完毕的返回值
      */
-    private String returnData;
+    private Object returnData;
 
     /**
      * 方法是否具有返回值
@@ -46,11 +46,11 @@ public class RemoteExecuteReturnDTO implements Serializable {
         this.serviceCode = serviceCode;
     }
 
-    public String getReturnData() {
+    public Object getReturnData() {
         return returnData;
     }
 
-    public void setReturnData(String returnData) {
+    public void setReturnData(Object returnData) {
         this.returnData = returnData;
     }
 

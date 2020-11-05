@@ -156,7 +156,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
             return executeReturn;
         }
         executeReturn.setSuccess(true);
-        executeReturn.setReturnData(JSON.toJSONString(result));
+        executeReturn.setReturnData(result);
         return executeReturn;
     }
 

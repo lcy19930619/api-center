@@ -27,9 +27,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg)  {
         RemoteExecuteReturnDTO result = null;
         String channelId = null;
+        RemoteExecuteParam remoteExecuteParam = null;
         try {
             result = (RemoteExecuteReturnDTO)msg;
             channelId = result.getChannelId();
+            remoteExecuteParam =nettyClient.getRemoteExecuteParam(channelId);
         } catch (Exception e){
             RemoteExecuteReturnDTO obj = new RemoteExecuteReturnDTO();
             obj.setSuccess( false );
@@ -37,7 +39,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             logger.error( "远程执行产生位置异常！",e );
         }finally {
 
-            RemoteExecuteParam remoteExecuteParam =nettyClient.getRemoteExecuteParam(channelId);
+
             synchronized (remoteExecuteParam){
                 remoteExecuteParam.setResult( result);
                 remoteExecuteParam.notify();
@@ -55,7 +57,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     // 出现异常的处理
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("client 读取数据出现异常");
+        logger.error("client 读取数据出现异常",cause);
         ctx.close();
     }
 
