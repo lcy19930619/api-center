@@ -18,10 +18,11 @@ public interface NettyClient {
     RemoteExecuteReturnDTO send(RemoteExecuteParam param) throws InterruptedException;
 
     /**
-     * netty方法执行完毕回调此方法
-     * @param param
+     * 根据channelId 获取执行参数
+     * @param channelId
+     * @return
      */
-    void done(RemoteExecuteParam param);
+    RemoteExecuteParam getRemoteExecuteParam(String channelId);
 
     /**
      * 当指定的服务下线后，移除此通道

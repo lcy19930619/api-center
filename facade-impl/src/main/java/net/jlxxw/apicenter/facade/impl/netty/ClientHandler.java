@@ -3,6 +3,7 @@ package net.jlxxw.apicenter.facade.impl.netty;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
+import net.jlxxw.apicenter.facade.impl.netty.impl.NettyClientImpl;
 import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +25,23 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)  {
-
+        RemoteExecuteReturnDTO result = null;
+        String channelId = null;
         try {
-            RemoteExecuteReturnDTO result = (RemoteExecuteReturnDTO)msg;
-            String channelId = result.getChannelId();
-            RemoteExecuteParam param = new RemoteExecuteParam();
-            param.setChannelId(channelId);
-            param.setResult(result);
-            nettyClient.done( param );
+            result = (RemoteExecuteReturnDTO)msg;
+            channelId = result.getChannelId();
         } catch (Exception e){
-            RemoteExecuteParam result = new RemoteExecuteParam();
             RemoteExecuteReturnDTO obj = new RemoteExecuteReturnDTO();
             obj.setSuccess( false );
             obj.setMessage( "远程执行产生位置异常！" );
             logger.error( "远程执行产生位置异常！",e );
-            nettyClient.done( result );
+        }finally {
+
+            RemoteExecuteParam remoteExecuteParam =nettyClient.getRemoteExecuteParam(channelId);
+            synchronized (remoteExecuteParam){
+                remoteExecuteParam.setResult( result);
+                remoteExecuteParam.notify();
+            }
         }
     }
 

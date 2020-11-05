@@ -4,6 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.pool.AbstractChannelPoolMap;
 import io.netty.channel.pool.ChannelPoolHandler;
@@ -15,17 +16,20 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.Promise;
 import net.jlxxw.apicenter.facade.dto.RemoteExecuteReturnDTO;
 import net.jlxxw.apicenter.facade.impl.netty.ClientHandler;
 import net.jlxxw.apicenter.facade.impl.netty.NettyClient;
 import net.jlxxw.apicenter.facade.param.RemoteExecuteParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author zhanxiumei
@@ -35,12 +39,12 @@ public class NettyClientImpl  implements NettyClient  {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientImpl.class);
     //管理以ip:端口号为key的连接池   FixedChannelPool继承SimpleChannelPool，有大小限制的连接池实现
-    public static AbstractChannelPoolMap<InetSocketAddress, FixedChannelPool> poolMap;
+    private static AbstractChannelPoolMap<InetSocketAddress, FixedChannelPool> poolMap;
 
     /**
      * key channel ID，value 请求参数
      */
-    public static Map<String,RemoteExecuteParam> map = new ConcurrentHashMap<>();
+    private static Map<String,RemoteExecuteParam> map = new ConcurrentHashMap<>();
     //启动辅助类 用于配置各种参数
     private  Bootstrap bootstrap =new Bootstrap();
 
@@ -114,16 +118,16 @@ public class NettyClientImpl  implements NettyClient  {
     }
 
 
+
     /**
-     * netty方法执行完毕回调此方法
-     * @param param
+     * 根据channelId 获取执行参数
+     *
+     * @param channelId
+     * @return
      */
     @Override
-    public void done(RemoteExecuteParam param){
-        String channelId = param.getChannelId();
-        RemoteExecuteParam remoteExecuteParam = map.get( channelId );
-        remoteExecuteParam.setResult( param.getResult() );
-        remoteExecuteParam.notify();
+    public RemoteExecuteParam getRemoteExecuteParam(String channelId) {
+        return map.get(channelId);
     }
 
     /**
