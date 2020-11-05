@@ -131,7 +131,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
         String[] methodParamNames = methodInfo.getMethodParamNames();
         // 方法的具体参数
         Object[] args = RemoteParamUtils.decode(param.getMethodParamJson(), methodParamNames);
-
+        Object result = null;
         // 处理全部参数类型
         if(Objects.nonNull(parameterTypes)){
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -148,7 +148,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
 
         try{
             method.setAccessible(true);
-            executeReturn.setReturnData(JSON.toJSONString(method.invoke(object, args))); ;
+            result = method.invoke(object, args); ;
         }catch (Exception e){
             logger.error("api center reflect execute filed:",e);
             executeReturn.setMessage(e.getMessage());
@@ -156,7 +156,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
             return executeReturn;
         }
         executeReturn.setSuccess(true);
-        executeReturn.setReturnData(JSON.toJSONString(object));
+        executeReturn.setReturnData(JSON.toJSONString(result));
         return executeReturn;
     }
 
