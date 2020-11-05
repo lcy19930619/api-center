@@ -109,7 +109,8 @@ public class NettyClientImpl  implements NettyClient  {
             //因为异步 所以不阻塞的话 该线程获取不到返回值
             //放弃对象锁 并阻塞等待notify
             try {
-                param.wait();
+                // 超时时间十秒，到时自动释放
+                param.wait(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

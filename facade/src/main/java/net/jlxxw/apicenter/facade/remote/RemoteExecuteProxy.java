@@ -148,7 +148,7 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
 
         try{
             method.setAccessible(true);
-            method.invoke(object, args);
+            executeReturn.setReturnData(JSON.toJSONString(method.invoke(object, args))); ;
         }catch (Exception e){
             logger.error("api center reflect execute filed:",e);
             executeReturn.setMessage(e.getMessage());
