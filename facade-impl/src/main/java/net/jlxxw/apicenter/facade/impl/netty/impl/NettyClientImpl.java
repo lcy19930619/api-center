@@ -101,20 +101,21 @@ public class NettyClientImpl  implements NettyClient  {
                 param.setChannelId( tempId );
                 map.put( tempId,param );
                 ch.writeAndFlush(param);
+                synchronized (param) {
+                    //因为异步 所以不阻塞的话 该线程获取不到返回值
+                    //放弃对象锁 并阻塞等待notify
+                    try {
+                        // 超时时间十秒，到时自动释放
+                        param.wait(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 //放回去
                 pool.release(ch);
             }
         } );
-        synchronized (param) {
-            //因为异步 所以不阻塞的话 该线程获取不到返回值
-            //放弃对象锁 并阻塞等待notify
-            try {
-                // 超时时间十秒，到时自动释放
-                param.wait(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+
         return param.getResult();
     }
 
