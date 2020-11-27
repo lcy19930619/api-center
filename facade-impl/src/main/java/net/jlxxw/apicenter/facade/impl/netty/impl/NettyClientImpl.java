@@ -144,12 +144,4 @@ public class NettyClientImpl  implements NettyClient  {
         poolMap.remove( address );
     }
 
-
-    public static void main(String[] args) throws InterruptedException {
-        RemoteExecuteParam remoteExecuteParam = new RemoteExecuteParam();
-        remoteExecuteParam.setIp( "192.168.1.31" );
-        remoteExecuteParam.setPort( 31697 );
-        RemoteExecuteReturnDTO send = new NettyClientImpl().send( remoteExecuteParam );
-
-    }
 }

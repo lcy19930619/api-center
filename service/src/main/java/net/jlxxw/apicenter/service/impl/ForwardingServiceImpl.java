@@ -14,6 +14,8 @@ import net.jlxxw.apicenter.facade.utils.ZookeeperUtils;
 import net.jlxxw.apicenter.intergration.buc.BucClient;
 import net.jlxxw.apicenter.service.ForwardingService;
 import net.jlxxw.apicenter.vo.ApiCenterResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -31,7 +33,7 @@ import java.util.Random;
  */
 @Service
 public class ForwardingServiceImpl implements ForwardingService {
-
+    private static final Logger logger =LoggerFactory.getLogger(ForwardingServiceImpl.class);
     @Resource
     private ServiceInfoDAO serviceInfoDAO;
     @Autowired
@@ -40,7 +42,6 @@ public class ForwardingServiceImpl implements ForwardingService {
     private NettyClient nettyClient;
     @Autowired
     private BucClient bucClient;
-
     /**
      * 处理网关转发服务
      *
@@ -69,7 +70,7 @@ public class ForwardingServiceImpl implements ForwardingService {
         }
 
         /*
-            网关接口鉴权
+            todo 网关接口鉴权
          */
         if (!bucClient.auth( "", dto.getServiceCode() )) {
             return Mono.just( ApiCenterResult.failed( ResultCodeEnum.SERVER_IS_OFFLINE ) );
@@ -96,6 +97,7 @@ public class ForwardingServiceImpl implements ForwardingService {
             RemoteExecuteReturnDTO result = nettyClient.send( remoteExecuteParam );
             return Mono.just( ApiCenterResult.success( result ) );
         } catch (Exception e) {
+            logger.error("remote method execute failed!!!",e);
             return Mono.just( ApiCenterResult.failed( ResultCodeEnum.REMOTE_EXECUTE_FAILED ) );
         }
     }

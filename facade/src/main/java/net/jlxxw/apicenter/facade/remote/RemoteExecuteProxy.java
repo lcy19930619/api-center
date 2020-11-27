@@ -131,6 +131,8 @@ public class RemoteExecuteProxy extends AbstractRemoteExecuteProxy {
         String[] methodParamNames = methodInfo.getMethodParamNames();
         // 方法的具体参数
         Object[] args = RemoteParamUtils.decode(param.getMethodParamJson(), methodParamNames);
+        // 方法是否有返回值
+        executeReturn.setHasReturn(methodInfo.isHasReturn());
         Object result = null;
         // 处理全部参数类型
         if(Objects.nonNull(parameterTypes)){

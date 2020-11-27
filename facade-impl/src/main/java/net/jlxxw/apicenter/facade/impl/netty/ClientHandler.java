@@ -38,8 +38,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             obj.setMessage( "远程执行产生位置异常！" );
             logger.error( "远程执行产生位置异常！",e );
         }finally {
-
-
             synchronized (remoteExecuteParam){
                 remoteExecuteParam.setResult( result);
                 remoteExecuteParam.notify();
