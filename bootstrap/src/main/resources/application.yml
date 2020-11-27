@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: api-center
   # 连接池相关配置
@@ -49,8 +51,4 @@ spring:
         reset-enable: true
         #启用
         enabled: true
-    password: 123456
-    username: root
-    url: jdbc:mysql://127.0.0.1:3306/api_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
-server:
-  port: 9090
+

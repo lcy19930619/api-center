@@ -1,0 +1,9 @@
+spring:
+  # 连接池相关配置
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    password: 123456
+    username: root
+    url: jdbc:mysql://127.0.0.1:3306/api_center?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+server:
+  port: 9090
