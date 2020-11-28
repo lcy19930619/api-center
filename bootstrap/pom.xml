@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>net.jlxxw.api-center</groupId>
-            <artifactId>controller</artifactId>
+            <artifactId>web</artifactId>
         </dependency>
     </dependencies>
 
