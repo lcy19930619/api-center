@@ -1,3 +1,4 @@
+### 仅作为调研性质使用，本项目没有后期维护
 ### 1、build facade
 ### 2、upload facade.jar to maven repository
 ### 3、create spring boot or spring mvc project
